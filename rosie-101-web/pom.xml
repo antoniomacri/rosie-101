@@ -1,0 +1,159 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>rosie-101-web</artifactId>
+    <packaging>war</packaging>
+    <parent>
+        <groupId>com.github.antoniomacri</groupId>
+        <artifactId>rosie-101</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
+        <jackson.version>2.9.2</jackson.version>
+        <jersey.version>2.23.2</jersey.version>
+        <rosie-pattern-language.version>1.0.0-alpha-6-1</rosie-pattern-language.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-servlet_3.0_spec</artifactId>
+                <version>1.0</version>
+            </dependency>
+            <dependency>
+                <!-- Use Jackson BOM to ensure compatibility among all Jackson packages. -->
+                <groupId>com.fasterxml.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>${jackson.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-servlet_3.0_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.antoniomacri</groupId>
+            <artifactId>rosie-pattern-language</artifactId>
+            <version>${rosie-pattern-language.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.glassfish.jersey.containers</groupId>
+            <artifactId>jersey-container-servlet</artifactId>
+            <version>${jersey.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-json-jackson</artifactId>
+            <version>${jersey.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>${project.artifactId}</finalName>
+
+        <plugins>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.0.2</version>
+                <configuration>
+                    <encoding>${maven.compiler.encoding}</encoding>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.6.1</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                    <encoding>${maven.compiler.encoding}</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>unpack</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.github.antoniomacri</groupId>
+                                    <artifactId>rosie-pattern-language-native</artifactId>
+                                    <version>${rosie-pattern-language.version}</version>
+                                    <!-- Reference the ID of the assembly -->
+                                    <classifier>lib</classifier>
+                                    <type>tar</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>
+                                        ${project.build.directory}/${project.build.finalName}/WEB-INF/lib/rosie-pattern-language-native
+                                    </outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>net.wasdev.wlp.maven.plugins</groupId>
+                <artifactId>liberty-maven-plugin</artifactId>
+                <version>2.1.2</version>
+                <configuration>
+                    <configFile>src/main/wlp/server.xml</configFile>
+                    <appArchive>${project.build.directory}/${project.build.finalName}.war</appArchive>
+                    <bootstrapProperties>
+                        <appLocation>${project.build.directory}/${project.build.finalName}</appLocation>
+                    </bootstrapProperties>
+                    <jvmOptions>
+                        -Djna.library.path=${project.build.directory}/${project.build.finalName}/WEB-INF/lib/rosie-pattern-language-native
+                    </jvmOptions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

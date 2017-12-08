@@ -1,0 +1,7 @@
+applications:
+- path: target/rosie-101-web.war
+  name: rosie-101
+  memory: 256M
+  instances: 1
+  env:
+    JVM_ARGS: -Djna.library.path=$HOME/wlp/usr/servers/defaultServer/apps/myapp.war/WEB-INF/lib/rosie-pattern-language-native
