@@ -70,9 +70,8 @@ rosie.controller('MainCtrl', function (RosieService) {
 
         RosieService.createEngine().then(function (response) {
             vm.engineId = response.data;
-        }).catch(function (e) {
-            // TODO: handle error
-            console.error(e);
+        }).catch(function (reason) {
+            outputEditor.setValue(JSON.stringify(reason, null, 2));
         });
     }
 
@@ -84,6 +83,8 @@ rosie.controller('MainCtrl', function (RosieService) {
         if (vm.engineId && vm.patternDescriptor) {
             RosieService.matchInput(vm.engineId, vm.patternDescriptor, vm.input).then(function (response) {
                 outputEditor.setValue(JSON.stringify(response.data, null, 2));
+            }).catch(function (reason) {
+                outputEditor.setValue(JSON.stringify(reason, null, 2));
             });
         }
     }
@@ -96,10 +97,15 @@ rosie.controller('MainCtrl', function (RosieService) {
                     vm.patternDescriptor = response.data.patternDescriptor;
                     RosieService.matchInput(vm.engineId, vm.patternDescriptor, vm.input).then(function (response) {
                         outputEditor.setValue(JSON.stringify(response.data, null, 2));
+                    }).catch(function (reason) {
+                        outputEditor.setValue(JSON.stringify(reason, null, 2));
                     });
                 } else {
                     vm.patternDescriptor = null;
+                    outputEditor.setValue(JSON.stringify(response.data.errors, null, 2));
                 }
+            }).catch(function (reason) {
+                outputEditor.setValue(JSON.stringify(reason, null, 2));
             });
         }
     }
