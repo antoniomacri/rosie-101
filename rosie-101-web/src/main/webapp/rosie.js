@@ -56,11 +56,15 @@ rosie.controller('MainCtrl', function (RosieService) {
 
     function init() {
         inputEditor = ace.edit("input-editor");
-        patternEditor = ace.edit("pattern-editor");
-        outputEditor = ace.edit("output-editor");
-
+        inputEditor.getSession().setUseWrapMode(true);
         inputEditor.getSession().on("change", inputChanged);
+
+        patternEditor = ace.edit("pattern-editor");
+        patternEditor.getSession().setUseWrapMode(true);
         patternEditor.getSession().on("change", patternChanged);
+
+        outputEditor = ace.edit("output-editor");
+        outputEditor.getSession().setUseWrapMode(true);
         outputEditor.setOptions({readOnly: true, highlightActiveLine: false, highlightGutterLine: false});
         outputEditor.renderer.$cursorLayer.element.style.display = "none";
 
