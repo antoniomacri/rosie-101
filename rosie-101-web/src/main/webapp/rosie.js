@@ -57,11 +57,9 @@ rosie.controller('MainCtrl', function (RosieService) {
     function init() {
         inputEditor = ace.edit("input-editor");
         inputEditor.getSession().setUseWrapMode(true);
-        inputEditor.getSession().on("change", inputChanged);
 
         patternEditor = ace.edit("pattern-editor");
         patternEditor.getSession().setUseWrapMode(true);
-        patternEditor.getSession().on("change", patternChanged);
 
         outputEditor = ace.edit("output-editor");
         outputEditor.getSession().setUseWrapMode(true);
@@ -70,6 +68,9 @@ rosie.controller('MainCtrl', function (RosieService) {
 
         RosieService.createEngine().then(function (response) {
             vm.engineId = response.data;
+
+            inputEditor.getSession().on("change", inputChanged);
+            patternEditor.getSession().on("change", patternChanged);
         }).catch(function (reason) {
             outputEditor.setValue(JSON.stringify(reason, null, 2));
         });
@@ -80,34 +81,56 @@ rosie.controller('MainCtrl', function (RosieService) {
 
     function inputChanged() {
         vm.input = inputEditor.getValue();
-        if (vm.engineId && vm.patternDescriptor) {
-            RosieService.matchInput(vm.engineId, vm.patternDescriptor, vm.input).then(function (response) {
-                outputEditor.setValue(JSON.stringify(response.data, null, 2));
-            }).catch(function (reason) {
-                outputEditor.setValue(JSON.stringify(reason, null, 2));
-            });
+
+        if (!vm.input) {
+            outputEditor.setValue("");
+            return;
         }
+
+        matchInput();
     }
 
     function patternChanged() {
         vm.pattern = patternEditor.getValue();
-        if (vm.engineId) {
-            RosieService.compilePattern(vm.engineId, vm.pattern).then(function (response) {
-                if (response.data.success) {
-                    vm.patternDescriptor = response.data.patternDescriptor;
-                    RosieService.matchInput(vm.engineId, vm.patternDescriptor, vm.input).then(function (response) {
-                        outputEditor.setValue(JSON.stringify(response.data, null, 2));
-                    }).catch(function (reason) {
-                        outputEditor.setValue(JSON.stringify(reason, null, 2));
-                    });
-                } else {
-                    vm.patternDescriptor = null;
-                    outputEditor.setValue(JSON.stringify(response.data.errors, null, 2));
-                }
-            }).catch(function (reason) {
-                outputEditor.setValue(JSON.stringify(reason, null, 2));
-            });
+
+        if (!vm.pattern) {
+            outputEditor.setValue("");
+            return;
         }
+
+        compilePattern();
+    }
+
+    function matchInput() {
+        if (!vm.input || !vm.patternDescriptor) {
+            return;
+        }
+
+        RosieService.matchInput(vm.engineId, vm.patternDescriptor, vm.input).then(function (response) {
+            outputEditor.setValue(JSON.stringify(response.data, null, 2));
+        }).catch(function (reason) {
+            outputEditor.setValue(JSON.stringify(reason, null, 2));
+        });
+    }
+
+    function compilePattern() {
+        if (!vm.pattern) {
+            return;
+        }
+
+        RosieService.compilePattern(vm.engineId, vm.pattern).then(function (response) {
+            if (response.data.success) {
+                vm.patternDescriptor = response.data.patternDescriptor;
+
+                inputChanged();
+            }
+            else {
+                vm.patternDescriptor = null;
+                outputEditor.setValue(JSON.stringify(response.data.errors, null, 2));
+            }
+        }).catch(function (reason) {
+            outputEditor.setValue(JSON.stringify(reason, null, 2));
+        });
     }
 });
 
