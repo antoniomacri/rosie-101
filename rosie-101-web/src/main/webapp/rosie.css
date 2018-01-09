@@ -21,6 +21,17 @@ footer {
     width: auto
 }
 
+.rpl-editor {
+    height: 500px;
+    width: auto
+}
+
+.pattern-editor {
+    height: 180px;
+    margin-top: 20px;
+    width: auto
+}
+
 .read-only {
     background-color: #f9f9f9;
 }

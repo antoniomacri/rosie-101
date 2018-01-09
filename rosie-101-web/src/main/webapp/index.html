@@ -64,10 +64,16 @@
             <div id="input-editor" class="editor"></div>
         </div>
         <div class="col-sm-4 text-left editor-container">
-            <div id="pattern-editor" class="editor"></div>
+            <div id="rpl-editor" class="rpl-editor"></div>
+            <div id="pattern-editor" class="pattern-editor"></div>
         </div>
         <div class="col-sm-4 sidenav editor-container">
             <div id="output-editor" class="editor read-only"></div>
+        </div>
+    </div>
+    <div class="row content">
+        <div class="col-sm-12">
+            <button ng-click="ctrl.submit()">Submit</button>
         </div>
     </div>
 </div>

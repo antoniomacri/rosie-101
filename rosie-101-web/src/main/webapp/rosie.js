@@ -9,37 +9,13 @@ var rosie = angular.module("rosie", ["ngResource", "ngSanitize"]);
     function RosieService($http) {
         var vm = this;
 
-
-        vm.createEngine = function () {
-            return $http.post("/rs/engines", {});
-        };
-
-        vm.deleteEngine = function (engineId) {
-            return $http.delete("/rs/engines/:engineId", {engineId: engineId});
-        };
-
-        vm.getConfiguration = function (engineId) {
-            return $http.get("/rs/engines/:engineId", {engineId: engineId});
-        };
-
-        vm.compilePattern = function (engineId, pattern) {
+        vm.match = function (input, rpl, pattern) {
             return $http({
                 method: "POST",
-                url: "/rs/engines/" + encodeURI(engineId) + "/patterns",
-                data: pattern,
+                url: "/rs/engines/match",
+                data: JSON.stringify({input: input, pattern: pattern, rpl: rpl}),
                 headers: {
-                    "Content-Type": "text/plain"
-                }
-            });
-        };
-
-        vm.matchInput = function (engineId, patternDescriptor, input) {
-            return $http({
-                method: "POST",
-                url: "/rs/engines/" + encodeURI(engineId) + "/patterns/" + encodeURI(patternDescriptor) + "/match",
-                data: input,
-                headers: {
-                    "Content-Type": "text/plain"
+                    "Content-Type": "application/json"
                 }
             });
         };
@@ -48,89 +24,67 @@ var rosie = angular.module("rosie", ["ngResource", "ngSanitize"]);
 
 
 rosie.controller('MainCtrl', function (RosieService) {
-    var vm = this;
+        var vm = this;
 
-    var inputEditor;
-    var patternEditor;
-    var outputEditor;
+        var inputEditor;
+        var rplEditor;
+        var patternEditor;
+        var outputEditor;
 
-    function init() {
-        inputEditor = ace.edit("input-editor");
-        inputEditor.getSession().setUseWrapMode(true);
+        function init() {
+            inputEditor = ace.edit("input-editor");
+            inputEditor.getSession().setUseWrapMode(true);
 
-        patternEditor = ace.edit("pattern-editor");
-        patternEditor.getSession().setUseWrapMode(true);
+            rplEditor = ace.edit("rpl-editor");
+            rplEditor.getSession().setUseWrapMode(true);
 
-        outputEditor = ace.edit("output-editor");
-        outputEditor.getSession().setUseWrapMode(true);
-        outputEditor.setOptions({readOnly: true, highlightActiveLine: false, highlightGutterLine: false});
-        outputEditor.renderer.$cursorLayer.element.style.display = "none";
+            patternEditor = ace.edit("pattern-editor");
+            patternEditor.getSession().setUseWrapMode(true);
 
-        RosieService.createEngine().then(function (response) {
-            vm.engineId = response.data;
-
-            inputEditor.getSession().on("change", inputChanged);
-            patternEditor.getSession().on("change", patternChanged);
-        }).catch(function (reason) {
-            outputEditor.setValue(JSON.stringify(reason, null, 2));
-        });
-    }
-
-    init();
-
-
-    function inputChanged() {
-        vm.input = inputEditor.getValue();
-
-        if (!vm.input) {
-            outputEditor.setValue("");
-            return;
+            outputEditor = ace.edit("output-editor");
+            outputEditor.getSession().setUseWrapMode(true);
+            outputEditor.setOptions({readOnly: true, highlightActiveLine: false, highlightGutterLine: false});
+            outputEditor.renderer.$cursorLayer.element.style.display = "none";
         }
 
-        matchInput();
-    }
+        init();
 
-    function patternChanged() {
-        vm.pattern = patternEditor.getValue();
 
-        if (!vm.pattern) {
-            outputEditor.setValue("");
-            return;
-        }
-
-        compilePattern();
-    }
-
-    function matchInput() {
-        if (!vm.input || !vm.patternDescriptor) {
-            return;
-        }
-
-        RosieService.matchInput(vm.engineId, vm.patternDescriptor, vm.input).then(function (response) {
-            outputEditor.setValue(JSON.stringify(response.data, null, 2));
-        }).catch(function (reason) {
-            outputEditor.setValue(JSON.stringify(reason, null, 2));
-        });
-    }
-
-    function compilePattern() {
-        if (!vm.pattern) {
-            return;
-        }
-
-        RosieService.compilePattern(vm.engineId, vm.pattern).then(function (response) {
-            if (response.data.success) {
-                vm.patternDescriptor = response.data.patternDescriptor;
-
-                inputChanged();
+        vm.submit = function () {
+            vm.rpl = rplEditor.getValue();
+            if (!vm.rpl) {
+                outputEditor.setValue("No RPL specified.");
+                return;
             }
-            else {
-                vm.patternDescriptor = null;
-                outputEditor.setValue(JSON.stringify(response.data.errors, null, 2));
+
+            vm.pattern = patternEditor.getValue();
+            if (!vm.pattern) {
+                outputEditor.setValue("No pattern specified.");
+                return;
             }
-        }).catch(function (reason) {
+
+            vm.input = inputEditor.getValue();
+
+            RosieService.match(vm.input, vm.rpl, vm.pattern)
+                .then(function (response) {
+                    handleSuccess(response.data);
+                })
+                .catch(function (reason) {
+                    handleError(reason);
+                });
+        };
+
+        function handleSuccess(data) {
+            if (data.success) {
+                outputEditor.setValue(JSON.stringify(data.match, null, 2));
+            } else {
+                outputEditor.setValue(JSON.stringify(data.errors, null, 2));
+            }
+        }
+
+        function handleError(reason) {
             outputEditor.setValue(JSON.stringify(reason, null, 2));
-        });
+        }
     }
-});
+);
 
