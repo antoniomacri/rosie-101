@@ -30,32 +30,29 @@ public class RosieEngineRest {
     public Response match(MatchRequestDto dto)
             throws JsonProcessingException
     {
-        RosieEngine engine = new RosieEngine();
+        try (RosieEngine engine = new RosieEngine()) {
+            LoadResult loadResult = engine.load(dto.getRpl());
+            if (loadResult.ok != 1) {
+                return buildErrorResponse(loadResult.errors);
+            }
 
-        LoadResult loadResult = engine.load(dto.getRpl());
-        if (loadResult.ok != 1) {
-            return buildErrorResponse(loadResult.errors);
+            CompilationResult compilationResult = engine.compile(dto.getPattern());
+            if (compilationResult.pat == null) {
+                return buildErrorResponse(compilationResult.errors);
+            }
+
+
+            if (dto.getStart() == null) {
+                dto.setStart(1); // 1-based index
+            }
+            if (dto.getEncoder() == null) {
+                dto.setEncoder("json");
+            }
+
+            MatchResult matchResult = engine.match(compilationResult.pat, dto.getInput(), dto.getStart(), dto.getEncoder());
+            Response response = buildSuccessResponse(matchResult);
+            return response;
         }
-
-        CompilationResult compilationResult = engine.compile(dto.getPattern());
-        if (compilationResult.pat == null) {
-            return buildErrorResponse(compilationResult.errors);
-        }
-
-
-        if (dto.getStart() == null) {
-            dto.setStart(1); // 1-based index
-        }
-        if (dto.getEncoder() == null) {
-            dto.setEncoder("json");
-        }
-
-        MatchResult matchResult = engine.match(compilationResult.pat, dto.getInput(), dto.getStart(), dto.getEncoder());
-        Response response = buildSuccessResponse(matchResult);
-
-        // TODO: close the engine
-
-        return response;
     }
 
 
