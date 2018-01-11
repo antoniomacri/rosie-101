@@ -111,18 +111,18 @@ rosie.controller('MainCtrl', function (RosieService) {
 
         function handleMatchSuccess(data) {
             if (data.success) {
-                outputEditor.setValue(JSON.stringify(data.match, null, 2));
+                outputEditor.setValue(JSON.stringify(data.match, null, 2), 1);
             } else {
-                outputEditor.setValue(JSON.stringify(data.errors, null, 2));
+                outputEditor.setValue(JSON.stringify(data.errors, null, 2), 1);
             }
         }
 
         function handleTraceSuccess(data) {
-            outputEditor.setValue("Matched: " + !!data.matched + "\n\n" + data.trace);
+            outputEditor.setValue("Matched: " + !!data.matched + "\n\n" + data.trace, 1);
         }
 
         function handleError(reason) {
-            outputEditor.setValue(JSON.stringify(reason, null, 2));
+            outputEditor.setValue(JSON.stringify(reason, null, 2), 1);
         }
     }
 );
