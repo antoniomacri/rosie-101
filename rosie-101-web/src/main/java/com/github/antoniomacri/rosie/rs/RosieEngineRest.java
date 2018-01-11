@@ -2,11 +2,9 @@ package com.github.antoniomacri.rosie.rs;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.antoniomacri.rosie.CompilationResult;
-import com.github.antoniomacri.rosie.LoadResult;
-import com.github.antoniomacri.rosie.MatchResult;
-import com.github.antoniomacri.rosie.RosieEngine;
+import com.github.antoniomacri.rosie.*;
 import com.github.antoniomacri.rosie.model.MatchRequestDto;
+import com.github.antoniomacri.rosie.model.TraceRequestDto;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -55,6 +53,36 @@ public class RosieEngineRest {
         }
     }
 
+    @POST
+    @Path("/trace")
+    public Response trace(TraceRequestDto dto)
+            throws JsonProcessingException
+    {
+        try (RosieEngine engine = new RosieEngine()) {
+            LoadResult loadResult = engine.load(dto.getRpl());
+            if (loadResult.ok != 1) {
+                return buildErrorResponse(loadResult.errors);
+            }
+
+            CompilationResult compilationResult = engine.compile(dto.getPattern());
+            if (compilationResult.pat == null) {
+                return buildErrorResponse(compilationResult.errors);
+            }
+
+
+            if (dto.getStart() == null) {
+                dto.setStart(1); // 1-based index
+            }
+            if (dto.getStyle() == null) {
+                dto.setStyle("condensed");
+            }
+
+            TraceResult traceResult = engine.trace(compilationResult.pat, dto.getInput(), dto.getStart(), dto.getStyle());
+            Response response = buildSuccessResponse(traceResult);
+            return response;
+        }
+    }
+
 
     private Response buildErrorResponse(String errors) throws JsonProcessingException {
         Map<String, Object> map = new HashMap<>();
@@ -80,5 +108,12 @@ public class RosieEngineRest {
         String body = MAPPER.writeValueAsString(map).replace("123456", String.valueOf(matchResult.data));
 
         return Response.ok(body).build();
+    }
+
+    private Response buildSuccessResponse(TraceResult traceResult) {
+        Map<String, Object> match = new HashMap<>();
+        match.put("trace", traceResult.trace);
+        match.put("matched", traceResult.matched);
+        return Response.ok(match).build();
     }
 }
