@@ -1,5 +1,5 @@
 applications:
-- path: target/rosie-101-web.war
+- path: rosie-101-web/target/rosie-101-web.war
   name: rosie-101
   memory: 256M
   instances: 1

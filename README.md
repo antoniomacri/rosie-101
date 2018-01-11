@@ -5,7 +5,10 @@ This project is a simple Bluemix application which uses [`librosie`](https://git
 **Warning.** Rosie library currently does not build on Windows. Therefore, development and testing must be done on Linux (Ubuntu 17.04 is fine) or Mac OS.
 
 
-## Building and running the application
+[![Deploy to Bluemix](https://bluemix.net/deploy/button.png)](https://bluemix.net/deploy?repository=https://github.com/antoniomacri/rosie-101)
+
+
+## Building and running the application manually
 
 This project can be built with [Apache Maven](http://maven.apache.org/). The project uses [Liberty Maven Plug-in](https://github.com/WASdev/ci.maven) to automatically download and install Liberty from the [Liberty repository](https://developer.ibm.com/wasdev/downloads/). Liberty Maven Plug-in is also used to create, configure, and run the application on the Liberty server. 
 
