@@ -8,6 +8,6 @@
         <tcpOptions soReuseAddr="true"/>
     </httpEndpoint>
 
-    <application name="rosie-101" context-root="/" location="${appLocation}" type="war"/>
+    <application name="rosie-101" context-root="/rosie-101" location="${appLocation}" type="war"/>
 
 </server>
