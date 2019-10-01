@@ -64,10 +64,16 @@
         </div>
         <div class="col-sm-4 sidenav editor-container">
             <div id="output-editor" class="editor read-only"></div>
+            <div>
+                <pre id="output-plain"></pre>
+            </div>
         </div>
     </div>
     <div class="row content">
         <div class="col-sm-12">
+            <select name="encoder" id="encoder" ng-model="ctrl.encoder">
+                <option ng-repeat="option in ctrl.encoders" value="{{option.name}}">{{option.label}}</option>
+            </select>
             <button ng-click="ctrl.match()">Match</button>
             <button ng-click="ctrl.trace()">Trace</button>
         </div>

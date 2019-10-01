@@ -19,7 +19,7 @@
         <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
         <jackson.version>2.9.2</jackson.version>
         <jersey.version>2.23.2</jersey.version>
-        <rosie-pattern-language.version>1.0.0-alpha-6-2</rosie-pattern-language.version>
+        <rosie-pattern-language.version>1.0.0-beta-1</rosie-pattern-language.version>
     </properties>
 
     <dependencyManagement>
@@ -99,6 +99,7 @@
                     <encoding>${maven.compiler.encoding}</encoding>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
@@ -107,37 +108,6 @@
                     <failOnMissingWebXml>false</failOnMissingWebXml>
                 </configuration>
             </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>unpack</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>com.github.antoniomacri</groupId>
-                                    <artifactId>rosie-pattern-language-native</artifactId>
-                                    <version>${rosie-pattern-language.version}</version>
-                                    <!-- Reference the ID of the assembly -->
-                                    <classifier>lib</classifier>
-                                    <type>tar</type>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>
-                                        ${project.build.directory}/${project.build.finalName}/WEB-INF/lib/rosie-pattern-language-native
-                                    </outputDirectory>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
         </plugins>
     </build>
 

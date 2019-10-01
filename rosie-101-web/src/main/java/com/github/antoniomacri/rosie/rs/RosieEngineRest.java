@@ -25,20 +25,10 @@ public class RosieEngineRest {
 
     @POST
     @Path("/match")
-    public Response match(MatchRequestDto dto)
-            throws JsonProcessingException
-    {
+    public Response match(MatchRequestDto dto) throws JsonProcessingException {
         try (RosieEngine engine = new RosieEngine()) {
-            LoadResult loadResult = engine.load(dto.getRpl());
-            if (loadResult.ok != 1) {
-                return buildErrorResponse(loadResult.errors);
-            }
-
-            CompilationResult compilationResult = engine.compile(dto.getPattern());
-            if (compilationResult.pat == null) {
-                return buildErrorResponse(compilationResult.errors);
-            }
-
+            engine.load(dto.getRpl());
+            Pattern pattern = engine.compile(dto.getPattern());
 
             if (dto.getStart() == null) {
                 dto.setStart(1); // 1-based index
@@ -47,28 +37,21 @@ public class RosieEngineRest {
                 dto.setEncoder("json");
             }
 
-            MatchResult matchResult = engine.match(compilationResult.pat, dto.getInput(), dto.getStart(), dto.getEncoder());
-            Response response = buildSuccessResponse(matchResult);
+            Match match = pattern.match(dto.getInput(), dto.getStart(), dto.getEncoder());
+            Response response = buildSuccessResponse(match);
             return response;
+        } catch (RosieException e) {
+            return buildErrorResponse(e.getErrors());
         }
     }
 
     @POST
     @Path("/trace")
-    public Response trace(TraceRequestDto dto)
-            throws JsonProcessingException
-    {
+    public Response trace(TraceRequestDto dto) throws JsonProcessingException {
         try (RosieEngine engine = new RosieEngine()) {
-            LoadResult loadResult = engine.load(dto.getRpl());
-            if (loadResult.ok != 1) {
-                return buildErrorResponse(loadResult.errors);
-            }
+            engine.load(dto.getRpl());
 
-            CompilationResult compilationResult = engine.compile(dto.getPattern());
-            if (compilationResult.pat == null) {
-                return buildErrorResponse(compilationResult.errors);
-            }
-
+            Pattern pattern = engine.compile(dto.getPattern());
 
             if (dto.getStart() == null) {
                 dto.setStart(1); // 1-based index
@@ -77,9 +60,11 @@ public class RosieEngineRest {
                 dto.setStyle("condensed");
             }
 
-            TraceResult traceResult = engine.trace(compilationResult.pat, dto.getInput(), dto.getStart(), dto.getStyle());
+            TraceResult traceResult = pattern.trace(dto.getInput(), dto.getStart(), dto.getStyle());
             Response response = buildSuccessResponse(traceResult);
             return response;
+        } catch (RosieException e) {
+            return buildErrorResponse(e.getErrors());
         }
     }
 
@@ -93,27 +78,28 @@ public class RosieEngineRest {
         return Response.ok(body).build();
     }
 
-    private Response buildSuccessResponse(MatchResult matchResult) throws JsonProcessingException {
-        Map<String, Object> match = new HashMap<>();
-        match.put("data", 123456);
-        match.put("abend", matchResult.abend);
-        match.put("leftover", matchResult.leftover);
-        match.put("tmatch", matchResult.tmatch);
-        match.put("ttotal", matchResult.ttotal);
+    private Response buildSuccessResponse(Match match) throws JsonProcessingException {
+        Map<String, Object> matchMap = new HashMap<>();
+        matchMap.put("data", 123456);
+        matchMap.put("bool", match.matches());
+        matchMap.put("abend", match.skipped());
+        matchMap.put("leftover", match.remaining());
+        matchMap.put("tmatch", match.matchMillis());
+        matchMap.put("ttotal", match.totalMillis());
 
         Map<String, Object> map = new HashMap<>();
         map.put("success", true);
-        map.put("match", match);
+        map.put("match", matchMap);
         // HACK to print JSON string as contents of the data field.
-        String body = MAPPER.writeValueAsString(map).replace("123456", String.valueOf(matchResult.data));
+        String body = MAPPER.writeValueAsString(map).replace("123456", String.valueOf(match.match()));
 
         return Response.ok(body).build();
     }
 
     private Response buildSuccessResponse(TraceResult traceResult) {
         Map<String, Object> match = new HashMap<>();
-        match.put("trace", traceResult.trace);
-        match.put("matched", traceResult.matched);
+        match.put("trace", traceResult.getTrace());
+        match.put("matched", traceResult.matched());
         return Response.ok(match).build();
     }
 }
