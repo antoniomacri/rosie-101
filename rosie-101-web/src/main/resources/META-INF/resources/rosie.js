@@ -12,7 +12,7 @@ var rosie = angular.module("rosie", ["ngResource", "ngSanitize"]);
         vm.match = function (input, rpl, pattern, encoder) {
             return $http({
                 method: "POST",
-                url: "/rosie-101/rs/engines/match",
+                url: "/rosie-101/engines/match",
                 data: JSON.stringify({input: input, pattern: pattern, rpl: rpl, encoder: encoder}),
                 headers: {
                     "Content-Type": "application/json"
@@ -23,7 +23,7 @@ var rosie = angular.module("rosie", ["ngResource", "ngSanitize"]);
         vm.trace = function (input, rpl, pattern, encoder) {
             return $http({
                 method: "POST",
-                url: "/rosie-101/rs/engines/trace",
+                url: "/rosie-101/engines/trace",
                 data: JSON.stringify({input: input, pattern: pattern, rpl: rpl, encoder: encoder}),
                 headers: {
                     "Content-Type": "application/json"
