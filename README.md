@@ -1,11 +1,8 @@
 # Rosie 101
 
-This project is a simple Bluemix application which uses [`librosie`](https://github.com/jamiejennings/rosie-pattern-language) via its [Java binding](https://github.com/antoniomacri/rosie-pattern-language-java).
+This project is a simple web application which uses [`librosie`](https://github.com/jamiejennings/rosie-pattern-language) via its [Java binding](https://github.com/antoniomacri/rosie-pattern-language-java).
 
 **Warning.** Rosie library currently does not build on Windows. Therefore, development and testing must be done on Linux (Ubuntu 17.04 is fine) or Mac OS.
-
-
-[![Deploy to Bluemix](https://bluemix.net/deploy/button.png)](https://bluemix.net/deploy?repository=https://github.com/antoniomacri/rosie-101)
 
 
 ## Building and running the application manually

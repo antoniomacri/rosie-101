@@ -12,7 +12,6 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>rosie-101-ear</module>
         <module>rosie-101-web</module>
     </modules>
 
