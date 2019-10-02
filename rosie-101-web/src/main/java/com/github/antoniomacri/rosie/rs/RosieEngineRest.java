@@ -31,7 +31,7 @@ public class RosieEngineRest {
             Pattern pattern = engine.compile(dto.getPattern());
 
             if (dto.getStart() == null) {
-                dto.setStart(1); // 1-based index
+                dto.setStart(0);
             }
             if (dto.getEncoder() == null) {
                 dto.setEncoder("json");
@@ -54,7 +54,7 @@ public class RosieEngineRest {
             Pattern pattern = engine.compile(dto.getPattern());
 
             if (dto.getStart() == null) {
-                dto.setStart(1); // 1-based index
+                dto.setStart(0);
             }
             if (dto.getStyle() == null) {
                 dto.setStyle("condensed");
