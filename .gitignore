@@ -1,3 +1,4 @@
 .idea/
 *.iml
 target/
+**/rosie-101-runner.jar
