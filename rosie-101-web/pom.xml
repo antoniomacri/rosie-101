@@ -43,6 +43,13 @@
         </dependency>
 
         <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.6</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
             <groupId>com.github.antoniomacri</groupId>
             <artifactId>rosie-pattern-language</artifactId>
             <version>${rosie-pattern-language.version}</version>
