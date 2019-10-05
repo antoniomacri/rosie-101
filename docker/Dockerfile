@@ -14,4 +14,4 @@ RUN rm -rf rosie
 COPY rosie-101-runner.jar /rosie-101.jar
 
 # run application with this command line
-CMD export LD_LIBRARY_PATH=/usr/local/lib && java -jar /rosie-101.jar
+CMD export LD_LIBRARY_PATH=/usr/local/lib && java -Dquarkus.http.port=$PORT -jar /rosie-101.jar
